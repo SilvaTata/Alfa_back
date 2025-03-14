@@ -11,7 +11,7 @@ use Laravel\Sanctum\HasApiTokens ;
 
 class Cargo extends Model
 {
-    use HasApiTokens, HasFactory, Notifiabley;
+    use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
         'nome'

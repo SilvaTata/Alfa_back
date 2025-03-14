@@ -7,13 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up()
     {
-        Schema::create('contatos', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->string('email')->unique();
-            $table->string('telefone', 20);
-            $table->timestamps();
-        });
+
     }
 
     public function down()

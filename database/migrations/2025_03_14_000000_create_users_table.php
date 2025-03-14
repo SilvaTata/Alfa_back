@@ -12,9 +12,10 @@ class CreateUsersTable extends Migration
             $table->id();
             $table->string('cpf', 11)->unique();
             $table->string('name'); 
-            $table->string('email')->unique();
             $table->string('password'); 
-            $table->string('status')->default('ativo'); 
+            $table->string('email')->unique();
+            $table->string('telefone', 20)->default('Não informado');
+            $table->string('status')->check("status IN ('ativo', 'inativo')")->default('ativo'); 
             $table->foreignId('cargo_id')->constrained('cargos')->onDelete('cascade');
             $table->rememberToken();
             $table->timestamps();

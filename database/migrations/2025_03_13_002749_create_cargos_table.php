@@ -9,14 +9,14 @@ return new class extends Migration {
     {
         Schema::create('cargos', function (Blueprint $table) {
             $table->id();
-            $table->string('nome')->unique(); // Nome do cargo (gerente, usuário)
+            $table->string('nome')->check("nome IN ('adm', 'user')");
             $table->timestamps();
         });
 
         // Adicionando os cargos iniciais
         \DB::table('cargos')->insert([
-            ['nome' => 'gerente'],
-            ['nome' => 'usuario'],
+            ['nome' => 'adm'],
+            ['nome' => 'user'],
         ]);
     }
 

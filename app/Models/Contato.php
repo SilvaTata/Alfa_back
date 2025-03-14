@@ -17,4 +17,9 @@ class Contato extends Model
         'telefone',
         'email'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

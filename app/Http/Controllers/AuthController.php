@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Cargo;
+use App\Models\Contato;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
@@ -17,41 +19,51 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        $request->validate([
-            'cpf' => 'required|string|size:11|unique:users,cpf',
-            'password' => 'required|string|min:6',
-            'nome' => 'required|string|max:255',
-            'status' => 'required|string',
-            'email' => 'required|string|email|max:255|unique:contatos,email',
-            'telefone' => 'required|string|max:20',
+        $data = $request->validate([
+            'cpf' => 'required|string|unique:users,cpf',
+            'name' => 'required|string',
+            'email' => 'required|email|unique:users,email',
+            'senha' => 'required|string|min:6',
             'cargo' => 'required|string|in:adm,user',
+            'status' => 'required|string|in:ativo,inativo',
+            'telefone' => 'required|string|min:10|max:15', 
         ]);
+    
+        $cargo = Cargo::where('nome', $data['cargo'])->first();
+        if (!$cargo) {
+            return response()->json(['error' => 'Cargo inválido'], 400);
+        }
+    
+        DB::beginTransaction();
+        try {
+            $user = User::create([
+                'cpf' => $data['cpf'],
+                'name' => $data['name'],
+                'password' => bcrypt($data['senha']),
+                'cargo_id' => $cargo->id,
+                'status' => $data['status'],
+                'telefone' => $data['telefone'],
+                'email' => $data['email']
+            ]);
 
-        $user = User::create([
-            'cpf' => $request->cpf,
-            'password' => Hash::make($request->password), // Alterado para "password"
-            'nome' => $request->nome,
-            'status' => $request->status,
-        ]);
-
-        // Criando o contato vinculado ao usuário
-        $user->contato()->create([
-            'email' => $request->email,
-            'telefone' => $request->telefone,
-        ]);
-
-        // Associando cargo
-        $cargo = Cargo::where('nome', $request->cargo)->firstOrFail();
-        $user->cargo()->associate($cargo);
-        $user->save();
-
-        // Gerando token Sanctum
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'message' => 'Usuário registrado com sucesso!',
-            'token' => $token
-        ], 201);
+            DB::commit();
+    
+            $token = $user->createToken('auth_token')->plainTextToken;
+    
+            return response()->json([
+                'message' => 'Usuário e contato cadastrados com sucesso!',
+                'user' => $user,
+                'token' => $token
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            // Depuração: Mostra o erro exato no terminal/log
+            return response()->json([
+                'error' => 'Erro ao registrar usuário.',
+                'message' => $e->getMessage() // Retorna a mensagem de erro real
+            ], 500);
+        }
     }
 
     public function login(Request $request)
