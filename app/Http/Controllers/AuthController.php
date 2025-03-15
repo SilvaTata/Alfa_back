@@ -14,7 +14,7 @@ class AuthController extends Controller
 {
     public function users()
     {
-        return response()->json(User::with(['contato', 'cargo'])->get(), 200);
+        return response()->json(User::with(['cargo'])->get(), 200);
     }
 
     public function register(Request $request)
