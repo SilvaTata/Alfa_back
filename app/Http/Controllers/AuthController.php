@@ -24,7 +24,7 @@ class AuthController extends Controller
             'name' => 'required|string',
             'email' => 'required|email|unique:users,email',
             'senha' => 'required|string|min:6',
-            'cargo' => 'required|string|in:adm,user',
+            'cargo' => 'required|string|in:Adm,User',
             'status' => 'required|string|in:ativo,inativo',
             'telefone' => 'required|string|min:10|max:15', 
         ]);

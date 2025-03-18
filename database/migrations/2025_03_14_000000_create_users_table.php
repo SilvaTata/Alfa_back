@@ -15,7 +15,7 @@ class CreateUsersTable extends Migration
             $table->string('password'); 
             $table->string('email')->unique();
             $table->string('telefone', 20)->default('Não informado');
-            $table->string('status')->check("status IN ('ativo', 'inativo')")->default('ativo'); 
+            $table->enum('status', ['ativo', 'inativo'])->default('ativo');
             $table->foreignId('cargo_id')->constrained('cargos')->onDelete('cascade');
             $table->rememberToken();
             $table->timestamps();
