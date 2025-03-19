@@ -39,7 +39,7 @@ class AuthController extends Controller
             $user = User::create([
                 'cpf' => $data['cpf'],
                 'name' => $data['name'],
-                'password' => bcrypt($data['senha']),
+                'password' => Hash::make($data['senha']),
                 'cargo_id' => $cargo->id,
                 'status' => $data['status'],
                 'telefone' => $data['telefone'],
@@ -51,7 +51,7 @@ class AuthController extends Controller
             $token = $user->createToken('auth_token')->plainTextToken;
     
             return response()->json([
-                'message' => 'Usuário e contato cadastrados com sucesso!',
+                'message' => 'Usuário cadastrado com sucesso!',
                 'user' => $user,
                 'token' => $token
             ], 201);

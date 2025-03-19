@@ -21,4 +21,3 @@ class HistVeiculo extends Model
         return $this->belongsTo(Veiculo::class);
     }
 }
-// PAROU NO 7
