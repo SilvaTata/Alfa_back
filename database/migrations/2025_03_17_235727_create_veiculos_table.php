@@ -18,12 +18,12 @@ class CreateVeiculosTable extends Migration
             $table->string('placa', 10)->unique();
             $table->string('chassi', 17)->unique();
             $table->enum('status_veiculo', ['disponível', 'em uso', 'manutenção'])->default('disponível');
-            $table->string('qr_code', 100)->unique();
+            $table->string('qr_code', 100)->unique()->nullable();
             $table->integer('ano');
-            $table->string('cor', 30)->unique();
+            $table->string('cor', 30);
             $table->integer('capacidade');
             $table->text('obs_veiculo')->nullable();
-            $table->integer('km_revisao');
+            $table->integer('km_revisao')->dafault(10000);
             $table->foreignId('marca_id')->constrained('marcas');
             $table->foreignId('modelo_id')->constrained('modelos');
             $table->timestamps();

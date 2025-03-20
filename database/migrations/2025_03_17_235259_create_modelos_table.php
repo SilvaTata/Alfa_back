@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 class CreateModelosTable extends Migration
 {
@@ -25,6 +26,7 @@ class CreateModelosTable extends Migration
             ['modelo' => 'Mustang'],
             ['modelo' => 'Onix'],
             ['modelo' => 'Golf'],
+            ['modelo' => 'Cronos'],
         ]);
     }
 
