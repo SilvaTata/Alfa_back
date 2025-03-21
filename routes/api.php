@@ -16,6 +16,8 @@ Route::middleware('auth:sanctum')->group(
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::post('/veiculos', [VeiculoController::class, 'store']);
         Route::get('/veiculo/{id}', [VeiculoController::class, 'show']);
-        Route::get('/veiculos/status{status}', [VeiculoController::class, 'status']);
+        Route::put('/veiculo/update/{id}', [VeiculoController::class, 'update']);
+        Route::delete('/veiculos/{id}', [VeiculoController::class, 'delete']);
+        Route::get('/veiculos/disponiveis', [VeiculoController::class, 'disponivel']);
     }
 );

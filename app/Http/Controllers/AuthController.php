@@ -95,4 +95,7 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Logout realizado com sucesso'], 200);
     }
+
+    //FUNÇÕES DA TELA INICIAL:
+    
 }
