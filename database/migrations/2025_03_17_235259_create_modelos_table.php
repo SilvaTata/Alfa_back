@@ -20,7 +20,7 @@ class CreateModelosTable extends Migration
             $table->timestamps();
         });
 
-        \DB::table('modelos')->insert([
+        DB::table('modelos')->insert([
             ['modelo' => 'Corolla'],
             ['modelo' => 'Civic'],
             ['modelo' => 'Mustang'],

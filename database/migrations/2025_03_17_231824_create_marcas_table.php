@@ -20,7 +20,7 @@ class CreateMarcasTable extends Migration
             $table->timestamps();
         });
 
-        \DB::table('marcas')->insert([
+        DB::table('marcas')->insert([
             ['marca' => 'Toyota'],
             ['marca' => 'Honda'],
             ['marca' => 'Ford'],

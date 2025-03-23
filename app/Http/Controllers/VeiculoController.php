@@ -187,7 +187,9 @@ class VeiculoController extends Controller
     }
 
     public function solicitados() {
-        if (auth()->user()->cargo_id == 1) {
+        $user = auth()->user();
+
+        if ($user->cargo_id == 1) {
             $veiculos = Veiculo::where('status_veiculo', 'em uso')->get();
 
             if ($veiculos->isEmpty()) {
@@ -196,7 +198,17 @@ class VeiculoController extends Controller
 
             return response()->json($veiculos, 200);
         } else {
-            $veiculos = Veiculo::where('status_veiculo', 'em uso')->get();
+            $solicitadosDoUsuario = Veiculo::where('status_veiculo', 'em uso')
+                                            ->whereHas('solicitars', function ($query) use ($user) {
+                                                $query->where('user_id', $user->id)
+                                                      ->where('situacao', 'aceita');
+                                            })
+                                            ->get();
+            if ($solicitadosDoUsuario->isEmpty()) {
+                return response()->json(['error' => 'Você não possui veículos em uso no momento.'], 404);
+            }
+
+            return response()->json($solicitadosDoUsuario, 200);
         }
     }
 }

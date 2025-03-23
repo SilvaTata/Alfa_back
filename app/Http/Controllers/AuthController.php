@@ -19,6 +19,7 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
+        // dd($request);
         $data = $request->validate([
             'cpf' => 'required|string|unique:users,cpf',
             'name' => 'required|string',

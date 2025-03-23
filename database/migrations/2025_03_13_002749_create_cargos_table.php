@@ -15,7 +15,7 @@ return new class extends Migration {
         });
 
         // Adicionando os cargos iniciais
-        \DB::table('cargos')->insert([
+        DB::table('cargos')->insert([
             ['nome' => 'Adm'],
             ['nome' => 'User'],
         ]);

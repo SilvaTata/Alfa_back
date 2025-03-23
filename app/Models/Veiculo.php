@@ -37,6 +37,6 @@ class Veiculo extends Model
 
     public function solicitars()
     {
-        return $this->hasMany(Solicitar::class);
+        return $this->hasMany(Solicitar::class, 'veiculo_id');
     }
 }
