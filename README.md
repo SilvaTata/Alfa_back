@@ -7,3 +7,5 @@
 -   Comandos para o Sanctum
     1 - composer require laravel / sanctum
     2 - php artisan vendor:publish --provider ="Laravel\Sanctum\SanctumServiceProvider"
+- Extensão do QrCode:
+    1 - composer require simplesoftwareio/simple-qrcode
