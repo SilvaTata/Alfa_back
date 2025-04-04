@@ -175,8 +175,14 @@ class VeiculoController extends Controller
         return response()->json(['message' => 'Veículo deletado com sucesso!'], 200);
     }
     
-    public function disponivel() {
-        $veiculos = Veiculo::where('status_veiculo', 'disponível')->get();
+    public function disponivel(Request $request) {
+        $veiculos = Veiculo::where('status_veiculo', 'disponível')
+                           ->when($request->has('search'), function ($query) use ($request) {
+                                $search = $request->input('search');
+                                 $query->where('modelo', 'LIKE', "%{$search}%" )
+                                       ->orWhere('marca', 'LIKE', "%{$search}%" );
+                             })
+                             ->get();
 
         if ($veiculos->isEmpty()){
             return response()->json(['error' => 'Nenhum veículo disponível encontrado.'], 404);
