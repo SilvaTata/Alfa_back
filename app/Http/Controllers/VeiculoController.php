@@ -20,10 +20,13 @@ class VeiculoController extends Controller
 
     public function store(Request $request)
     {
+        $user = auth()->user();
+        dd(auth()->user());
+
         if (auth()->user()->cargo_id !== 1) {
             return response()->json(['error' => 'Acesso não autorizado.'], 403);
         }
-
+        
         $data = $request->validate([
             'placa' => 'required|string|unique:veiculos,placa',
             'chassi' => 'required|string|unique:veiculos,chassi',
@@ -91,6 +94,7 @@ class VeiculoController extends Controller
             return response()->json(['error' => 'Veículo não encontrado.'], 404);
         }
         return response()->json($veiculo, 200);
+        
     }
 
     
@@ -191,29 +195,7 @@ class VeiculoController extends Controller
         return response()->json($veiculos, 200);
     }
 
-    public function solicitados() {
-        $user = auth()->user();
-
-        if ($user->cargo_id == 1) {
-            $veiculos = Veiculo::where('status_veiculo', 'em uso')->get();
-
-            if ($veiculos->isEmpty()) {
-                return response()->json(['error' => 'Nenhum veículo em uso encontrado.'], 404);
-            }
-
-            return response()->json($veiculos, 200);
-        } else {
-            $solicitadosDoUsuario = Veiculo::where('status_veiculo', 'em uso')
-                                            ->whereHas('solicitars', function ($query) use ($user) {
-                                                $query->where('user_id', $user->id)
-                                                      ->where('situacao', 'aceita');
-                                            })
-                                            ->get();
-            if ($solicitadosDoUsuario->isEmpty()) {
-                return response()->json(['error' => 'Você não possui veículos em uso no momento.'], 404);
-            }
-
-            return response()->json($solicitadosDoUsuario, 200);
-        }
-    }
+    // public function solicitados() {
+       
+    // }
 }
