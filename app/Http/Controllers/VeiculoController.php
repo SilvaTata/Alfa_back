@@ -9,6 +9,7 @@ use App\Models\Veiculo;
 use App\Models\Marca;
 use App\Models\Modelo;
 use App\Models\User;
+use App\Models\Cargo;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class VeiculoController extends Controller
@@ -21,9 +22,8 @@ class VeiculoController extends Controller
     public function store(Request $request)
     {
         $user = auth()->user();
-        dd(auth()->user());
 
-        if (auth()->user()->cargo_id !== 1) {
+        if (auth()->user()->cargo->nome !== "Adm") {
             return response()->json(['error' => 'Acesso não autorizado.'], 403);
         }
         
