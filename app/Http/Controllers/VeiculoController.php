@@ -23,7 +23,7 @@ class VeiculoController extends Controller
     {
         $user = auth()->user();
 
-        if (auth()->user()->cargo->nome !== "Adm") {
+        if (!$user->isAdm()) {
             return response()->json(['error' => 'Acesso não autorizado.'], 403);
         }
         
@@ -93,8 +93,7 @@ class VeiculoController extends Controller
         if (!$veiculo) {
             return response()->json(['error' => 'Veículo não encontrado.'], 404);
         }
-        return response()->json($veiculo, 200);
-        
+        return response()->json($veiculo::with('marca', 'modelo'), 200);
     }
 
     
@@ -192,7 +191,7 @@ class VeiculoController extends Controller
             return response()->json(['error' => 'Nenhum veículo disponível encontrado.'], 404);
         }
 
-        return response()->json($veiculos, 200);
+        return response()->json($veiculos::with('marca', 'modelo'), 200);
     }
 
     // public function solicitados() {

@@ -42,4 +42,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Solicitar::class);
     }
+
+    public function isAdmn()
+    {
+        return $this->cargo->nome === 'Adm';
+    }
 }
