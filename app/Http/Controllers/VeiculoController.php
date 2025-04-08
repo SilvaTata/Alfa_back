@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Models\Veiculo;
 use App\Models\Marca;
 use App\Models\Modelo;
 use App\Models\User;
 use App\Models\Cargo;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Http\Controllers\AuthController;
+use Illuminate\Support\Facades\Auth;
 
 class VeiculoController extends Controller
 {
@@ -21,12 +23,20 @@ class VeiculoController extends Controller
 
     public function store(Request $request)
     {
-        $user = auth()->user();
-
-        if (!$user->isAdm()) {
+        $user = Auth::user();
+    
+        if (!$user) {
+            return response()->json(['error' => 'Usuário não autenticado.'], 401);
+        }
+    
+        if ($user->cargo_id === null) {
+            return response()->json(['error' => 'Cargo não encontrado.'], 404);
+        }
+    
+        if ($user->cargo_id !== 1) {
             return response()->json(['error' => 'Acesso não autorizado.'], 403);
         }
-        
+    
         $data = $request->validate([
             'placa' => 'required|string|unique:veiculos,placa',
             'chassi' => 'required|string|unique:veiculos,chassi',
@@ -38,20 +48,19 @@ class VeiculoController extends Controller
             'km_revisao' => 'nullable|numeric',
             'marca' => 'required|string',
             'modelo' => 'required|string',
-                
-            ]);
-            
+        ]);
+    
         $marca = Marca::where('marca', $data['marca'])->first();
-
         $modelo = Modelo::where('modelo', $data['modelo'])->first();
-        if(!$marca) {
-        return response()->json(['error' => 'Marca inválida'], 400); 
+    
+        if (!$marca) {
+            return response()->json(['error' => 'Marca inválida'], 400); 
         }
-
-        if(!$modelo) {
+    
+        if (!$modelo) {
             return response()->json(['error' => 'Modelo inválido'], 400);
         }
-
+    
         DB::beginTransaction();
         try {
             $veiculo = Veiculo::create([
@@ -66,25 +75,30 @@ class VeiculoController extends Controller
                 'marca_id' => $marca->id,
                 'modelo_id' => $modelo->id,
             ]);
-
+    
             $qrcode = QrCode::generate($veiculo->id);
             $fileName = time() . '.svg';
             file_put_contents(public_path('qrcodes/' . $fileName), $qrcode);
-
+    
             $veiculo->update(['qr_code' => $fileName]);
-
+    
             DB::commit();
-
-            return response()->json(['message' => 'Veículo criado com sucesso!'], 201);
+    
+            return response()->json([
+                'message' => 'Veículo criado com sucesso!',
+                'veiculo' => $veiculo,
+                'qrcode' => $fileName,
+            ], 201);
         } catch(\Exception $e) {
             DB::rollBack();
-
+    
             return response()->json([
                 'error' => 'Erro ao criar veículo.', 
                 'message' => $e->getMessage()
             ], 500);
         }
     }
+    
 
     public function show($id)
     {
@@ -99,7 +113,17 @@ class VeiculoController extends Controller
     
     public function update(Request $request, $id)
     {
-        if (auth()->user()->cargo_id !== 1) {
+        $user = Auth::user();
+    
+        if (!$user) {
+            return response()->json(['error' => 'Usuário não autenticado.'], 401);
+        }
+    
+        if ($user->cargo_id === null) {
+            return response()->json(['error' => 'Cargo não encontrado.'], 404);
+        }
+    
+        if ($user->cargo_id !== 1) {
             return response()->json(['error' => 'Acesso não autorizado.'], 403);
         }
 
@@ -150,7 +174,10 @@ class VeiculoController extends Controller
             
             DB::commit();
             
-            return response()->json(['message' => 'Veículo atualizado com sucesso!'], 200);
+            return response()->json([
+                'message' => 'Veículo atualizado com sucesso!',
+                'veiculo' => $veiculo,
+            ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
             
@@ -163,7 +190,17 @@ class VeiculoController extends Controller
     
     public function destroy($id)
     {
-        if (auth()->user()->cargo_id !== 1) {
+        $user = Auth::user();
+    
+        if (!$user) {
+            return response()->json(['error' => 'Usuário não autenticado.'], 401);
+        }
+    
+        if ($user->cargo_id === null) {
+            return response()->json(['error' => 'Cargo não encontrado.'], 404);
+        }
+    
+        if ($user->cargo_id !== 1) {
             return response()->json(['error' => 'Acesso não autorizado.'], 403);
         }
 
@@ -191,10 +228,17 @@ class VeiculoController extends Controller
             return response()->json(['error' => 'Nenhum veículo disponível encontrado.'], 404);
         }
 
-        return response()->json($veiculos::with('marca', 'modelo'), 200);
+        return response()->json($veiculos, 200);
     }
 
-    // public function solicitados() {
-       
+    // public function manutencao() {
+    //     $user = auth()->user();
+
+    //     $veiculo = Veiculo::find($id);
+
+    //     if ($veiculo->km_revisao <=0 ) {
+    //         $veiculo->status_veiculo = "manutenção";
+    //         $veiculo->save();
+    //     }
     // }
 }

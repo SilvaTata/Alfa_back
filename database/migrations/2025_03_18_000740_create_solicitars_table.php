@@ -24,6 +24,9 @@ class CreateSolicitarsTable extends Migration
             $table->text('motivo');
             $table->enum('situacao', ['pendente', 'aceita', 'recusada', 'concluída'])->default('pendente');
             $table->text('motivo_recusa')->nullable();
+            $table->time('hora_recusa')->nullable();
+            $table->date('data_recusa')->nullable();
+            $table->foreignId('adm_id')->constrained('users');
             $table->timestamps();
         });
     }
