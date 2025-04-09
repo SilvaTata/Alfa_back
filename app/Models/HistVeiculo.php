@@ -14,7 +14,8 @@ class HistVeiculo extends Model
     protected $fillable = [
         'veiculo_id',
         'km_inicio',
-        'km_final'
+        'km_final',
+        'km_gasto',
     ];
 
     public function veiculo() 

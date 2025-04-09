@@ -26,8 +26,6 @@ Route::middleware('auth:sanctum')->group(
         Route::get('solicitacoes', [SolicitarController::class, 'index']);
         Route::post('solicitar/create', [SolicitarController::class, 'store']);
         Route::get('solicitar/{id}', [SolicitarController::class, 'show']);
-        Route::post('solicitar/{id}/aceitar', [SolicitarController::class, 'aceitar']);
-        Route::post('solicitar/{id}/recusar', [SolicitarController::class, 'recusar']);
-        Route::post('solicitar/{id}/concluir', [SolicitarController::class, 'concluir']);
+        Route::post('solicitar/{id}/aceitarOuRecusar', [SolicitarController::class, 'aceitarOuRecusar']);
     }
 );

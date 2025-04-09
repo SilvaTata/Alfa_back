@@ -228,7 +228,7 @@ class VeiculoController extends Controller
             return response()->json(['error' => 'Nenhum veículo disponível encontrado.'], 404);
         }
 
-        return response()->json($veiculos, 200);
+        return response()->json(['message' => 'Veículos disponíveis', 'veiculos' => $veiculos], 200);
     }
 
     // public function manutencao() {

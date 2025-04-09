@@ -109,7 +109,7 @@ class SolicitarController extends Controller
         return response()->json($solicitar, 200);
     }
 
-    public function aceitar(Request $request, $id)
+    public function aceitarOuRecusa(Request $request, $id)
     {
         $user = Auth::user();
 
@@ -123,48 +123,102 @@ class SolicitarController extends Controller
             return response()->json(['error' => 'Solicitação não encontrada.'], 404);
         }
 
-        $solicitar->situacao = 'aceita';
-        $solicitar->save();
+        if ($solicitar->situacao !== 'pendente') {
+            return response()->json(['error' => 'Solicitação já processada.'], 400);
+        }
 
-        $histSolicitar = new HistSolicitar();
-        $histSolicitar->solicitacao_id = $solicitar->id;
-        $histSolicitar->hora_aceito = now()->format('H:i');
-        $histSolicitar->data_aceito = now()->format('Y-m-d');
-        $histSolicitar->adm_id = $user->id;
-        $histSolicitar->save();
+        DB::beginTransaction();
+        try {
+            if ($request->button === 'aceitar') {
 
-        return response()->json(['message' => 'Solicitação aceita com sucesso.'], 200);
+                $solicitar->situacao = 'aceita';
+                $solicitar->save();
+                
+                $histSolicitar = new HistSolicitar();
+                $histSolicitar->solicitacao_id = $solicitar->id;
+                $histSolicitar->hora_aceito = now()->format('H:i');
+                $histSolicitar->data_aceito = now()->format('Y-m-d');
+                $histSolicitar->adm_id = $user->id;
+                $histSolicitar->save();
+
+                DB::commit();
+            
+            return response()->json(['message' => 'Solicitação aceita com sucesso.'], 200);
+
+        } elseif ($request->button === 'recusar') {
+
+            $solicitar->situacao = 'recusada';
+            $solicitar->motivo_recusa = $request->motivo_recusa;
+            $solicitar->hora_recusa = now()->format('H:i');
+            $solicitar->data_recusa = now()->format('Y-m-d');
+            $solicitar->save();
+
+            DB::commit();
+            
+            return response()->json(['message' => 'Solicitação recusada com sucesso.'], 200);
+        }
+
+        DB::rollBack();
+
+        return response()->json(['error' => 'Ação inválida.'], 400);
+    } catch (\Exception $e) {
+        DB::rollBack();
+
+        return response()->json([
+            'error' => 'Erro ao processar a solicitação.',
+            'message' => $e->getMessage()
+        ], 500);
     }
-
-    public function recusar(Request $request, $id)
+    }   
+    
+    public function iniciar(Request $request, $id) 
     {
         $user = Auth::user();
-
-        if ($user->cargo_id !== 1) {
-            return response()->json(['error' => 'Acesso não autorizado.'], 403);
-        }
 
         $solicitar = Solicitar::find($id);
 
         if (!$solicitar) {
             return response()->json(['error' => 'Solicitação não encontrada.'], 404);
         }
+        
+        if($user->id !== $solicitar->user_id) {
+            return response()->json(['error' => 'Acesso não autorizado.'], 403);
+        }
+        
+        $veiculo = $solicitar->veiculo;
+        $placa_confirmar = $request->placa_confirmar;
 
-        $solicitar->situacao = 'aceita';
-        $solicitar->save();
+        if ($placa_confirmar != $veiculo->placa) {
+            return response()->json(['error' => 'Placa inválida.'], 400);
+        }
 
-        $histSolicitar = new HistSolicitar();
-        $histSolicitar->solicitacao_id = $solicitar->id;
-        $histSolicitar->hora_aceito = now()->format('H:i');
-        $histSolicitar->data_aceito = now()->format('Y-m-d');
-        $histSolicitar->adm_id = $user->id;
-        $histSolicitar->save();
+        $km_inicio = $request->km_velocimetro;
 
-        return response()->json(['message' => 'Solicitação aceita com sucesso.'], 200);
+        DB::beginTransaction();
+        try{
+            $histVeiculo = new HistVeiculo();
+            $histVeiculo->veiculo_id = $veiculo->id;
+            $histVeiculo->km_inicio = $km_inicio;
+            $histVeiculo->save();
+
+            $solicitar->update(
+            $solicitar->data_inicio = now()->format('Y-m-d'),
+            $solicitar->hora_inicio = now()->format('H:i'),
+            );
+
+            DB::commit();
+            
+            return response()->json([
+                'message' => 'Veículo retirado com sucesso.',
+                'solicitacao' => $solicitar,
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'error' => 'Erro ao iniciar uso do veículo.',
+                'message' => $e->getMessage()
+            ], 500);
     }
-
-    public function destroy($id)
-    {
-        //
     }
 }
