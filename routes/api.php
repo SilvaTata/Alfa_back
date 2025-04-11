@@ -23,9 +23,12 @@ Route::middleware('auth:sanctum')->group(
         Route::delete('/veiculos/{id}', [VeiculoController::class, 'delete']);
         Route::get('/veiculos/disponiveis', [VeiculoController::class, 'disponivel']);
         Route::get('veiculos/solicitados', [VeiculoController::class, 'solicitados']);
+        Route::get('/qrcode/scan/{id}');
         Route::get('solicitacoes', [SolicitarController::class, 'index']);
         Route::post('solicitar/create', [SolicitarController::class, 'store']);
         Route::get('solicitar/{id}', [SolicitarController::class, 'show']);
         Route::post('solicitar/{id}/aceitarOuRecusar', [SolicitarController::class, 'aceitarOuRecusar']);
+        Route::post('solicitar/{id}/iniciar', [SolicitarController::class, 'iniciar']);
+        Route::post('solicitar/{id}/finalizar', [SolicitarController::class, 'finalizar']);
     }
 );

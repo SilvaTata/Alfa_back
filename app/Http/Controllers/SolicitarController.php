@@ -6,11 +6,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\AuthController;
 use App\Models\User;
 use App\Models\Veiculo;
 use App\Models\Solicitar;
 use App\Models\HistSolicitar;
+use App\Models\HistVeiculo;
 use App\Models\Marca;
 use App\Models\Modelo;
 use App\Models\Cargo;
@@ -193,18 +193,21 @@ class SolicitarController extends Controller
         }
 
         $km_inicio = $request->km_velocimetro;
+        $data_inicio = now()->format('Y-m-d');
+        $hora_inicio = now()->format('H:i');
 
         DB::beginTransaction();
         try{
             $histVeiculo = new HistVeiculo();
             $histVeiculo->veiculo_id = $veiculo->id;
+            $histVeiculo->solicitacao_id = $solicitar->id;
             $histVeiculo->km_inicio = $km_inicio;
             $histVeiculo->save();
 
-            $solicitar->update(
-            $solicitar->data_inicio = now()->format('Y-m-d'),
-            $solicitar->hora_inicio = now()->format('H:i'),
-            );
+            $solicitar->update([
+            'data_inicio' => $data_inicio,
+            'hora_inicio' => $hora_inicio,
+            ]);
 
             DB::commit();
             
@@ -217,6 +220,65 @@ class SolicitarController extends Controller
             DB::rollBack();
             return response()->json([
                 'error' => 'Erro ao iniciar uso do veículo.',
+                'message' => $e->getMessage()
+            ], 500);
+    }
+    }
+
+    public function finalizar(Request $request, $id) 
+    {
+        $user = Auth::user();
+
+        $solicitar = Solicitar::find($id);
+
+        if (!$solicitar) {
+            return response()->json(['error' => 'Solicitação não encontrada.'], 404);
+        }
+        
+        if($user->id !== $solicitar->user_id) {
+            return response()->json(['error' => 'Acesso não autorizado.'], 403);
+        }
+        
+        $veiculo = $solicitar->veiculo;
+        $placa_confirmar = $request->placa_confirmar;
+
+        if ($placa_confirmar != $veiculo->placa) {
+            return response()->json(['error' => 'Placa inválida.'], 400);
+        }
+
+        $km_final = $request->km_velocimetro;
+
+        DB::beginTransaction();
+        try{
+            $histVeiculo = HistVeiculo::where('solicitacao_id', $solicitar->id)->first();
+
+            if (!$histVeiculo) {
+                return response()->json(['error' => 'Histórico não encontrado.'], 404);
+            }
+
+            $histVeiculo->km_final = $km_final;
+            $histVeiculo->save();
+
+            $solicitar->update([
+            'data_final' => now()->format('Y-m-d'),
+            'hora_final' => now()->format('H:i'),
+            'situacao' => 'concluída',
+            ]);
+
+            DB::commit();
+
+            $veiculo->status_veiculo = 'disponível';
+            $veiculo->save();
+            
+            return response()->json([
+                'message' => 'Veículo devolvido com sucesso.',
+                'solicitacao' => $solicitar,
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'error' => 'Erro ao finalizar uso do veículo.',
                 'message' => $e->getMessage()
             ], 500);
     }

@@ -37,4 +37,10 @@ class Solicitar extends Model
     {
         return $this->hasOne(HistSolicitar::class, 'solicitar_id');
     }
+
+    public function histVeiculo()
+{
+    return $this->hasOne(HistVeiculo::class, 'solicitacao_id');
+}
+
 }

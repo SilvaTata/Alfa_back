@@ -39,4 +39,19 @@ class Veiculo extends Model
     {
         return $this->hasMany(Solicitar::class, 'veiculo_id');
     }
+
+    public function solicitar()
+    {
+        return $this->belongsTo(Solicitar::class, 'solicitacao_id');
+    }
+
+    public function historico()
+    {
+        return $this->hasOne(HistVeiculo::class, 'veiculo_id');
+    }
+
+    public function histSolicitar()
+    {
+        return $this->hasOne(HistSolicitar::class, 'solicitacao_id');
+    }
 }

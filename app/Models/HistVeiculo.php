@@ -13,6 +13,7 @@ class HistVeiculo extends Model
 
     protected $fillable = [
         'veiculo_id',
+        'solicitacao_id',
         'km_inicio',
         'km_final',
         'km_gasto',
@@ -21,5 +22,10 @@ class HistVeiculo extends Model
     public function veiculo() 
     {
         return $this->belongsTo(Veiculo::class);
+    }
+
+    public function solicitar()
+    {
+        return $this->belongsTo(Solicitar::class, 'solicitacao_id');
     }
 }

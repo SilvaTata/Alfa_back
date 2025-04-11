@@ -86,7 +86,7 @@ class VeiculoController extends Controller
     
             return response()->json([
                 'message' => 'Veículo criado com sucesso!',
-                'veiculo' => $veiculo,
+                'veiculo' => $veiculo->load(['marca', 'modelo']),
                 'qrcode' => $fileName,
             ], 201);
         } catch(\Exception $e) {
@@ -107,7 +107,7 @@ class VeiculoController extends Controller
         if (!$veiculo) {
             return response()->json(['error' => 'Veículo não encontrado.'], 404);
         }
-        return response()->json($veiculo::with('marca', 'modelo'), 200);
+        return response()->json($veiculo->load(['marca', 'modelo']), 200);
     }
 
     
@@ -176,7 +176,7 @@ class VeiculoController extends Controller
             
             return response()->json([
                 'message' => 'Veículo atualizado com sucesso!',
-                'veiculo' => $veiculo,
+                'veiculo' => $veiculo->load(['marca', 'modelo']),
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -228,7 +228,10 @@ class VeiculoController extends Controller
             return response()->json(['error' => 'Nenhum veículo disponível encontrado.'], 404);
         }
 
-        return response()->json(['message' => 'Veículos disponíveis', 'veiculos' => $veiculos], 200);
+        return response()->json([
+            'message' => 'Veículos disponíveis', 
+            'veiculos' => $veiculos->load(['marca', 'modelo']),
+        ],200);
     }
 
     // public function manutencao() {

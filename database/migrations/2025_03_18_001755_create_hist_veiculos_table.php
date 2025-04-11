@@ -16,6 +16,7 @@ class CreateHistVeiculosTable extends Migration
         Schema::create('hist_veiculos', function (Blueprint $table) {
             $table->id();
             $table->foreignId('veiculo_id')->constrained('veiculos')->onDelete('cascade');
+            $table->foreignId('solicitacao_id')->constrained('solicitars')->onDelete('cascade')->unique();
             $table->integer('km_inicio');
             $table->integer('km_final');
             $table->integer('km_gasto')->storedAs('km_final - km_inicio');
