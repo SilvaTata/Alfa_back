@@ -94,7 +94,8 @@ class SolicitarController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['error' => 'Erro ao atualizar o veículo.'], 500);
+            return response()->json(['error' => 'Erro ao atualizar o veículo.',
+                'message' => $e->getMessage()], 500);
         }  
     }
 

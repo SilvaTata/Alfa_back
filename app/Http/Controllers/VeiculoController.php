@@ -4,14 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Models\Veiculo;
 use App\Models\Marca;
 use App\Models\Modelo;
-use App\Models\User;
-use App\Models\Cargo;
-use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Auth;
 
 class VeiculoController extends Controller
