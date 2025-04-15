@@ -11,9 +11,6 @@ use App\Models\Veiculo;
 use App\Models\Solicitar;
 use App\Models\HistSolicitar;
 use App\Models\HistVeiculo;
-use App\Models\Marca;
-use App\Models\Modelo;
-use App\Models\Cargo;
 
 class SolicitarController extends Controller
 {
@@ -94,7 +91,8 @@ class SolicitarController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['error' => 'Erro ao atualizar o veículo.',
+            return response()->json([
+                'error' => 'Erro ao criar solicitação.',
                 'message' => $e->getMessage()], 500);
         }  
     }

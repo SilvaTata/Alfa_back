@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\VeiculoController;
 use App\Http\Controllers\SolicitarController;
+use App\Http\Controllers\QrCodeScanController;
 
 Route::get('/users', [AuthController::class, 'users']);
 
@@ -23,7 +24,7 @@ Route::middleware('auth:sanctum')->group(
         Route::delete('/veiculos/{id}', [VeiculoController::class, 'delete']);
         Route::get('/veiculos/disponiveis', [VeiculoController::class, 'disponivel']);
         Route::get('veiculos/solicitados', [VeiculoController::class, 'solicitados']);
-        Route::get('/qrcode/scan/{id}');
+        Route::get('/qrcode/scan/{veiculo}', [QrCodeScanController::class, 'handleScan'])->name('api.qrcode.scan');
         Route::get('solicitacoes', [SolicitarController::class, 'index']);
         Route::post('solicitar/create', [SolicitarController::class, 'store']);
         Route::get('solicitar/{id}', [SolicitarController::class, 'show']);

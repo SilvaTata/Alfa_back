@@ -9,6 +9,7 @@ use App\Models\Veiculo;
 use App\Models\Marca;
 use App\Models\Modelo;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class VeiculoController extends Controller
 {
@@ -72,9 +73,22 @@ class VeiculoController extends Controller
                 'modelo_id' => $modelo->id,
             ]);
     
-            $qrcode = QrCode::generate($veiculo->id);
-            $fileName = time() . '.svg';
-            file_put_contents(public_path('qrcodes/' . $fileName), $qrcode);
+            $qrCodeUrl = route('api.qrcode.scan', ['veiculo' => $veiculo->id]);
+            $qrcodeContent = QrCode::format('svg')->size(200)->generate($qrCodeUrl);
+            $fileName = 'veiculo_' . $veiculo->id . '_' . time() . '.svg';
+
+            try {
+                file_put_contents(public_path('qrcodes/' . $fileName), $qrcodeContent);
+            } catch (\Exception $e) {
+                Log::error("Erro ao salvar QR code: " . $e->getMessage());
+
+                DB::rollBack();
+
+                    return response()->json([
+                        'error' => 'Erro ao salvar arquivo QR Code.',
+                        'message' => $e->getMessage()
+                    ], 500);
+            }
     
             $veiculo->update(['qr_code' => $fileName]);
     
@@ -83,7 +97,8 @@ class VeiculoController extends Controller
             return response()->json([
                 'message' => 'Veículo criado com sucesso!',
                 'veiculo' => $veiculo->load(['marca', 'modelo']),
-                'qrcode' => $fileName,
+                'qr_code_url' => $qrCodeUrl,
+                'qr_code_filename' => $fileName,
             ], 201);
         } catch(\Exception $e) {
             DB::rollBack();
