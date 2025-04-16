@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\QrCodeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +14,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return 'opa';
-});
+// Route::get('/', function () {
+//     return 'opa';
+// });
+
+Route::get('/qr-code', [QrCodeController::class, 'index']);
+Route::get('/qr-code/json', [QrCodeController::class, 'json']);

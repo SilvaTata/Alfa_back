@@ -72,9 +72,13 @@ class VeiculoController extends Controller
                 'marca_id' => $marca->id,
                 'modelo_id' => $modelo->id,
             ]);
-    
+            
             $qrCodeUrl = route('api.qrcode.scan', ['veiculo' => $veiculo->id]);
-            $qrcodeContent = QrCode::format('svg')->size(200)->generate($qrCodeUrl);
+            $qrcodeContent = QrCode::format('svg')     
+            ->size(200)          
+            ->margin(1)          
+            ->errorCorrection('L') 
+            ->generate($qrCodeUrl);
             $fileName = 'veiculo_' . $veiculo->id . '_' . time() . '.svg';
 
             try {
