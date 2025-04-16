@@ -16,6 +16,7 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(
     function () {
+        Route::get('/qrcode/scan/{veiculo}', [QrCodeScanController::class, 'handleScan'])->name('api.qrcode.scan');
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/veiculos', [VeiculoController::class, 'index']);
         Route::post('/veiculo/create', [VeiculoController::class, 'store']);
@@ -24,7 +25,6 @@ Route::middleware('auth:sanctum')->group(
         Route::delete('/veiculos/{id}', [VeiculoController::class, 'delete']);
         Route::get('/veiculos/disponiveis', [VeiculoController::class, 'disponivel']);
         Route::get('veiculos/solicitados', [VeiculoController::class, 'solicitados']);
-        Route::get('/qrcode/scan/{veiculo}', [QrCodeScanController::class, 'handleScan'])->name('api.qrcode.scan');
         Route::get('solicitacoes', [SolicitarController::class, 'index']);
         Route::post('solicitar/create', [SolicitarController::class, 'store']);
         Route::get('solicitar/{id}', [SolicitarController::class, 'show']);

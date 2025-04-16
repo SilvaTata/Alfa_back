@@ -25,7 +25,7 @@ class Solicitar extends Model
     
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
 
     public function veiculo()
@@ -35,12 +35,12 @@ class Solicitar extends Model
 
     public function historico()
     {
-        return $this->hasOne(HistSolicitar::class, 'solicitar_id');
+        return $this->hasOne(HistSolicitar::class, 'solicitacao_id');
     }
 
     public function histVeiculo()
-{
-    return $this->hasOne(HistVeiculo::class, 'solicitacao_id');
-}
+    {
+        return $this->hasOne(HistVeiculo::class, 'solicitacao_id');
+    }
 
 }
